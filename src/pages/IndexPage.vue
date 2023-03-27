@@ -30,46 +30,15 @@
 
 <script setup lang='ts'>
 import SudokuGrid from 'components/SudokuGrid.vue';
-import { DosukuDifficulty, DosukuGrid, DosukuResponse, Grid, GridCell, GridCellValue } from 'components/models';
+import {create_partial_solution, Grid, GridCell, GridCellValue} from 'components/Sudoku';
 import { onMounted, ref } from 'vue';
 
 const grid = ref<Grid>();
-const difficulty = ref<DosukuDifficulty>('Medium');
-const difficulty_options = [
-  'Easy',
-  'Medium',
-  'Hard'
-];
+const difficulty = ref<number>(3);
+const difficulty_options = [1, 2, 3, 4, 5];
 
-function transform_grid(dosuku_grid: DosukuGrid): Grid {
-  const grid: Grid = [];
-  for (const row in dosuku_grid.value) {
-    const grid_row = [];
-    for (const col in dosuku_grid.value[row]) {
-      grid_row.push({
-        readonly: dosuku_grid.value[row][col] !== 0,
-        value: dosuku_grid.value[row][col] == 0 ? null : dosuku_grid.value[row][col] as GridCellValue
-      } as GridCell);
-    }
-    grid.push(grid_row);
-  }
-  return grid;
-}
-
-async function fetch_board() {
-  do {
-    console.log('fetching boards');
-    const req: Response = await fetch('https://sudoku-api.vercel.app/api/dosuku?query={newboard(limit:10){grids{value,solution,difficulty}}}');
-    const res: DosukuResponse = await req.json();
-    for (const grid_idx in res.newboard.grids) {
-      const dosuku_grid: DosukuGrid = res.newboard.grids[grid_idx];
-      if (dosuku_grid.difficulty === difficulty.value) {
-        console.log(dosuku_grid);
-        grid.value = transform_grid(dosuku_grid);
-        return;
-      }
-    }
-  } while (true);
+function fetch_board() {
+  grid.value = create_partial_solution(difficulty.value);
 }
 
 onMounted(fetch_board);

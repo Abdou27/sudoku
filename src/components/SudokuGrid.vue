@@ -21,7 +21,7 @@
 
 <script setup lang='ts'>
 import { toRefs } from 'vue';
-import { Grid, isGridCellValue } from './models';
+import { Grid, isGridCellValue } from './Sudoku';
 
 interface Props {
   grid: Grid,
